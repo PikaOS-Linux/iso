@@ -48,52 +48,11 @@ $(BUILD)/chroot: $(BUILD)/debootstrap
 		CLEAN=1 \
 		/iso/chroot.sh"
 
-	# Copy GPG public key for Pop staging repositories
-	gpg --batch --yes --export --armor "204DD8AEC33A7AFF" | sudo tee "$@.partial/iso/pop.key"
-
 	# Clean APT sources
 	sudo truncate --size=0 "$@.partial/etc/apt/sources.list"
 
-	# Temporarily set apt preferences
-	sudo cp "data/apt-preferences" "$@.partial/etc/apt/preferences.d/pop-iso"
-
-	# Copy kernelstub configuration
-	sudo mkdir "$@.partial/etc/kernelstub"
-	sudo cp "data/kernelstub" "$@.partial/etc/kernelstub/configuration"
-
-	# Workaround bug caused by first run of add-apt-repository being blank
-	sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
-		"add-apt-repository --yes -n ppa:system76/pop"
-	sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
-		"rm -rf /etc/apt/sources.list.d/system76-ubuntu-pop-$(UBUNTU_CODE).list"
-
-	# Setup DEB822 format repos on 20.10 or later
-	if [ -n "${DEB822}" ]; then \
-		sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
-			"FILENAME=\"/etc/apt/sources.list.d/system.sources\" \
-			NAME=\"${DISTRO_NAME} System Sources\" \
-			TYPES=\"deb deb-src\" \
-			URIS=\"${UBUNTU_MIRROR}\" \
-			SUITES=\"$(UBUNTU_CODE) $(UBUNTU_CODE)-security $(UBUNTU_CODE)-updates $(UBUNTU_CODE)-backports\" \
-			COMPONENTS=\"main restricted universe multiverse\" \
-			/iso/repos.sh"; \
-	fi
-
-	# Add release URIs
-	if [ -n "${RELEASE_URI}" ]; then \
-		sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
-			"FILENAME=\"/etc/apt/sources.list.d/${DISTRO_CODE}-release.sources\" \
-			NAME=\"${DISTRO_NAME} Release Sources\" \
-			TYPES=\"deb deb-src\" \
-			URIS=\"${RELEASE_URI}\" \
-			SUITES=\"${UBUNTU_CODE}\" \
-			COMPONENTS=\"main\" \
-			/iso/repos.sh"; \
-	fi
-
 	# Run chroot script
 	sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
-		"KEY=\"/iso/pop.key\" \
 		UPDATE=1 \
 		UPGRADE=1 \
 		INSTALL=\"$(DISTRO_PKGS)\" \
@@ -103,19 +62,7 @@ $(BUILD)/chroot: $(BUILD)/debootstrap
 		CLEAN=1 \
 		/iso/chroot.sh \
 		$(DISTRO_REPOS)"
-
-	# Add extra URIS
-	if [ -n "${APPS_URI}" ]; then \
-		sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
-			"FILENAME=\"/etc/apt/sources.list.d/${DISTRO_CODE}-apps.sources\" \
-			NAME=\"${DISTRO_NAME} Applications\" \
-			TYPES=\"deb\" \
-			URIS=\"${APPS_URI}\" \
-			SUITES=\"${UBUNTU_CODE}\" \
-			COMPONENTS=\"main\" \
-			/iso/repos.sh"; \
-	fi
-
+ 
 	# Rerun chroot script to install POST_DISTRO_PKGS
 	sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
 		"INSTALL=\"$(POST_DISTRO_PKGS)\" \
@@ -124,13 +71,8 @@ $(BUILD)/chroot: $(BUILD)/debootstrap
 		CLEAN=1 \
 		/iso/chroot.sh"
 
-	# Remove apt preferences
-	sudo rm "$@.partial/etc/apt/preferences.d/pop-iso"
-
 	# Unmount chroot
 	"scripts/unmount.sh" "$@.partial"
-
-	sudo rm -rf "$@.partial"/root/.launchpadlib
 
 	# Remove temp directory for modifications
 	sudo rm -rf "$@.partial/iso"

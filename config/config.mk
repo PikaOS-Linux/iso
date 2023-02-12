@@ -1,55 +1,32 @@
-DISTRO_NAME=Pop_OS
+DISTRO_NAME=PikaOS
 
-ifeq ($(NVIDIA),1)
-DISTRO_VOLUME_LABEL=$(DISTRO_NAME) $(DISTRO_VERSION) amd64 Nvidia
-else
 DISTRO_VOLUME_LABEL=$(DISTRO_NAME) $(DISTRO_VERSION) amd64 Intel
-endif
-
-GNOME_INITIAL_SETUP_STAMP=21.04
-
-# DEB822 format system repositories, comment out to disable
-DEB822:=1
-APPS_URI:=http://apt.pop-os.org/proprietary
-
-# Repositories to be present in installed system
-RELEASE_URI:=http://apt.pop-os.org/release
-
-# Use proposed repositories instead, if requested
-ifeq ($(PROPOSED),1)
-RELEASE_URI:=http://apt.pop-os.org/staging/master
-endif
 
 # Packages to install
 DISTRO_PKGS=\
-	linux-system76 \
-	ubuntu-minimal \
-	ubuntu-standard \
-	pop-desktop
-
+	ubuntu-keyring \
+	pika-sources \
+	update-systemd-boot \
+	systemd-boot \
+	systemd \
+	zram-config \
+	plymouth-theme-spinner \
+	pika-baseos \
+	pika-amdgpu-core \
+	pika-amdgpu-switcher \
+	pika-gnome-desktop-minimal \
+	dbus-x11 \
+	rsync
+	
 # Packages to install after (to avoid dependency issues)
-POST_DISTRO_PKGS=\
-	system76-acpi-dkms \
-	system76-dkms \
-	system76-io-dkms
-
-ifeq ($(NVIDIA),1)
-DISTRO_PARAMS+=modules_load=nvidia
-DISTRO_PARAMS+=nvidia-drm.modeset=0
-POST_DISTRO_PKGS+=\
-	amd-ppt-bin \
-	nvidia-driver-525
-endif
+POST_DISTRO_PKGS=rsync
 
 # Packages to have in live instance
 LIVE_PKGS=\
 	casper \
-	distinst \
 	expect \
 	gparted \
-	pop-installer \
-	pop-installer-casper \
-	pop-shop-casper
+	calamares-settings-pika
 
 # Packages to remove from installed system (usually installed as Recommends)
 RM_PKGS=\
@@ -77,46 +54,18 @@ MAIN_POOL=\
 	grub-pc \
 	grub-pc-bin \
 	grub-gfxpayload-lists \
-	kernelstub \
 	libfl2 \
 	libx86-1 \
 	lm-sensors \
 	pm-utils \
-	pop-hp-vendor \
-	pop-hp-vendor-dkms \
-	pop-hp-wallpapers \
 	postfix \
 	powermgmt-base \
 	python3-debian \
 	python3-distro \
 	python3-evdev \
 	python3-systemd \
-	system76-driver \
-	system76-firmware-daemon \
-	system76-oled \
-	system76-wallpapers \
 	vbetool \
-	xbacklight
-
-ifeq ($(NVIDIA),1)
-MAIN_POOL+=\
-	system76-driver-nvidia
-endif
-
-# Additional pool packages from the restricted set of packages
-RESTRICTED_POOL=\
-	amd64-microcode \
-	intel-microcode \
-	iucode-tool
-
-ifeq ($(HP),1)
-DISTRO_VOLUME_LABEL=$(DISTRO_NAME) $(DISTRO_VERSION) amd64 HP
-POST_DISTRO_PKGS+=\
-	pop-hp-vendor \
-	pop-hp-vendor-dkms \
-	pop-hp-wallpapers
-RM_PKGS+=\
-	pop-wallpapers
-LIVE_PKGS+=\
-	dbus-x11
-endif
+	xbacklight \
+	update-systemd-boot \
+	systemd-boot \
+	systemd

@@ -42,7 +42,6 @@ germinate: $(SEEDS)/distro $(SEEDS)/live $(SEEDS)/pool $(SEEDS)/STRUCTURE
 	    -S seeds \
 	    -s ubuntu.$(UBUNTU_CODE) \
 	    -m http://archive.ubuntu.com/ubuntu \
-	    -m http://ppa.launchpad.net/system76/pop/ubuntu \
 	    -d $(UBUNTU_CODE),$(UBUNTU_CODE)-updates \
 	    -a amd64 \
 	    -c main,restricted,universe,multiverse \

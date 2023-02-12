@@ -32,32 +32,12 @@ then
     apt-key add "${KEY}"
 fi
 
-# Add all distro PPAs
-if [ $# -gt 0 ]
-then
-    echo "Enabling repository source"
-    ENABLE_SOURCE=--enable-source
-    for repo in "$@"
-    do
-        if [ "$repo" == "--" ]
-        then
-            echo "Disabling repository source"
-            ENABLE_SOURCE=
-        else
-            echo "Adding repository '$repo'"
-            if [[ "${repo}" == "deb "* ]]
-            then
-                echo "${repo}" >> /etc/apt/sources.list
-                if [ -n "${ENABLE_SOURCE}" ]
-                then
-                    echo "${repo}" | sed 's/^deb /deb-src /' >> /etc/apt/sources.list
-                fi
-            else
-                add-apt-repository ${ENABLE_SOURCE} --yes "${repo}"
-            fi
-        fi
-    done
-fi
+# Install PikaOS sources
+wget https://launchpad.net/~pikaos/+archive/ubuntu/baseos/+files/pika-sources/pika-sources_3.0-99pika18_all.deb
+sudo apt install ./pika-sources_3.0-99pika18_all.deb --yes --option Acquire::Retries=5 --option Acquire::http::Timeout=100 --option Dpkg::Options::="--force-confnew"
+rm -rf ./pika-sources*
+apt-get update -y
+
 
 # Update package definitions
 if [ -n "${UPDATE}" ]

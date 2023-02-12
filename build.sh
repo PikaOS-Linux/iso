@@ -14,4 +14,7 @@ sudo apt install \
     qemu-kvm \
     squashfs-tools \
     xorriso \
-    zsync
+    zsync \
+    make-essential
+    
+make

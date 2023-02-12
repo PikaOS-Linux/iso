@@ -15,9 +15,6 @@ GPG_NAME?=`id -un`
 # Include automatic variables
 include mk/automatic.mk
 
-# Include Ubuntu definitions
-include mk/ubuntu.mk
-
 # Language packages
 include mk/language.mk
 
